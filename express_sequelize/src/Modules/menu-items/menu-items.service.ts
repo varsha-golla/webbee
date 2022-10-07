@@ -1,3 +1,5 @@
+import MenuItem from "./entities/menu-item.entity";
+
 export class MenuItemsService {
 
   /* TODO: complete getMenuItems so that it returns a nested menu structure
@@ -76,6 +78,43 @@ export class MenuItemsService {
   */
 
   async getMenuItems() {
-    throw new Error('TODO in task 3');
+    const menuItems = await MenuItem.findAll();
+    const normalizedMenuItems = this.normalizeMenuItems(menuItems);
+    const rootMenuItem = normalizedMenuItems.find(menuItem => !menuItem.parentId);
+    normalizedMenuItems.forEach(menuItem => {
+        this.insertMenuItem(menuItem, rootMenuItem, rootMenuItem);
+    });
+    return rootMenuItem;
+  }
+
+  insertMenuItem(item: any, root: any, currentRoot: any) {
+    if(item.id === root.id) {
+        return;
+    }
+    const parentId = item.parentId;
+    if(currentRoot.id === parentId) {
+        currentRoot.children.push(item);
+        return true;
+    } else {
+        for(let i = 0; i < currentRoot.children.length; i++) {
+            if(this.insertMenuItem(item, root, currentRoot.children[i])) {
+                return true;
+            }
+        }
+    }
+    return false;
+  }
+
+  normalizeMenuItems(menuItems: any[]) {
+    return menuItems.map((menuItem: any) => {
+        return {
+            id: menuItem.dataValues.id,
+            name: menuItem.dataValues.name,
+            url: menuItem.dataValues.url,
+            parentId: menuItem.dataValues.parentId,
+            createdAt: menuItem.dataValues.createdAt,
+            children: [],
+        }
+    });
   }
 }
