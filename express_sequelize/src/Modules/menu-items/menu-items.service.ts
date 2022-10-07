@@ -84,7 +84,7 @@ export class MenuItemsService {
     normalizedMenuItems.forEach(menuItem => {
         this.insertMenuItem(menuItem, rootMenuItem, rootMenuItem);
     });
-    return rootMenuItem;
+    return [rootMenuItem];
   }
 
   insertMenuItem(item: any, root: any, currentRoot: any) {
