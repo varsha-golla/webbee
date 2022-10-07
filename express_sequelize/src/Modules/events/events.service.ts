@@ -194,6 +194,10 @@ export class EventsService {
     ```
      */
   async getFutureEventWithWorkshops() {
-    throw new Error('TODO task 2');
+    const eventWithWorkshops = await this.getEventsWithWorkshops();
+    return eventWithWorkshops.filter((event: any) => {
+      const firstWorkshop = event['workshops'][0];
+      return firstWorkshop.start >= new Date().toString();
+    });
   }
 }
