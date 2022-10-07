@@ -1,4 +1,5 @@
 import Event from './entities/event.entity';
+import Workshop from './entities/workshop.entity';
 
 
 export class EventsService {
@@ -85,7 +86,45 @@ export class EventsService {
      */
 
   async getEventsWithWorkshops() {
-    throw new Error('TODO task 1');
+    const events = await Event.findAll();
+    const workshops = await Workshop.findAll();
+    const normalizedEvents = this.normalizeEvents(events);
+    const normalizedWorkshops = this.normalizeWorkshops(workshops);
+    normalizedEvents.forEach((event: any) => {
+      normalizedWorkshops.forEach(workshop => {
+        if(workshop.eventId === event.id) {
+          if(!event['workshops']) {
+            event.workshops = [workshop];
+          } else {
+            event.workshops.push(workshop);
+          }
+        }
+      });
+    });
+    return normalizedEvents;
+  }
+
+  normalizeEvents(events: any[]) {
+    return events.map((event: any) => {
+      return {
+        id: event.dataValues.id,
+        name: event.dataValues.name,
+        createdAt: event.dataValues.createdAt,
+      }
+    })
+  }
+
+  normalizeWorkshops(workshops: any[]) {
+    return workshops.map((workshop: any) => {
+      return {
+        id: workshop.dataValues.id,
+        start: workshop.dataValues.start,
+        end: workshop.dataValues.end,
+        eventId: workshop.dataValues.eventId,
+        name: workshop.dataValues.name,
+        createdAt: workshop.dataValues.createdAt,
+      }
+    })
   }
 
   /* TODO: complete getFutureEventWithWorkshops so that it returns events with workshops, that have not yet started
